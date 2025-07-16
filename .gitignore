@@ -1,0 +1,20 @@
+# Игнорировать большие и бинарные файлы
+*.pdf
+*.bin
+*.exe
+*.pdb
+*.ilk
+*.idb
+*.log
+*.obj
+*.user
+*.filters
+*.sln
+*.vcxproj
+*.tlog
+x64/
+ConsoleApplication2/ConsoleApplication2
+ConsoleApplication2/x64/
+venv/
+__pycache__/
+.DS_Store 
