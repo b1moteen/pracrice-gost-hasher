@@ -4,6 +4,8 @@
 #include <iomanip>
 #include <cstring>
 #include <algorithm>
+#include <unistd.h>
+#include <sys/stat.h>
 
 
 const size_t BLOCK_SIZE = 64; 
@@ -286,6 +288,10 @@ public:
 
 // Ф-я для вычисления хеша файла
 void calculateFileHash(const char* filename, bool is_512bit, unsigned char* hash) {
+    struct stat s;
+    if (stat(filename, &s) == 0 && S_ISDIR(s.st_mode)) {
+        throw std::runtime_error("Path is a directory");
+    }
     std::ifstream file(filename, std::ios::binary);
     if (!file) {
         throw std::runtime_error("Cannot open file");
@@ -302,11 +308,22 @@ void calculateFileHash(const char* filename, bool is_512bit, unsigned char* hash
     hasher.final(hash);
 }
 
-int main() {
-    const char* filename = "sisiy.pdf";  // Имя нашего файла
+int main(int argc, char* argv[]) {
+    std::string filename;
+    char cwd[1024];
+    getcwd(cwd, sizeof(cwd));
+    std::cout << "[DEBUG] Current working dir: " << cwd << std::endl;
+    if (argc > 1 && argv[1] && std::string(argv[1]).length() > 0) {
+        std::cout << "[DEBUG] argv[1] = '" << argv[1] << "'" << std::endl;
+        filename = argv[1];
+    } else {
+        std::cout << "Введите имя файла (Enter для sisiy.pdf): ";
+        std::getline(std::cin, filename);
+        if (filename.empty()) filename = "sisiy.pdf";
+    }
     try {
         unsigned char hash[HASH_SIZE_512];
-        calculateFileHash(filename, true, hash);  
+        calculateFileHash(filename.c_str(), true, hash);  
 
         std::cout << "Stribog-512 hash of " << filename << ":\n";
         for (size_t i = 0; i < HASH_SIZE_512; ++i) {
